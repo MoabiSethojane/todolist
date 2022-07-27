@@ -7,35 +7,35 @@ export default function App() {
   // This will be a recording  variable that will hold  the current  recording
   const [recording, setRecording] = React.useState();
   // This will be for the saved recording
-  const[recordings, setRecoridngs] = React.useState([]);
+  const[recordings, setRecordings] = React.useState([]);
   // This will be for the message to show if anything happens on the microphone
-  const [message, setMassage]= React.useState();
+  const [message, setMassage]= React.useState("");
 
   async function startRecording(){
     // for the user to start recording the user must request the mic
     try{
-      const permission = await Audio.requsetPermissionsAsync();
+      const permission = await Audio.requestPermissionsAsync();
       // if the permission is granted then start recording
       if(permission.status==="granted"){
         await Audio.setAudioModeAsync({
           allowRecordingIOS:true,
           playsInSilentModeIOS:true
-        })
-        const {recocnding}= await Audio.Recording.createAsync(
+        });
+        const {recording}= await Audio.Recording.createAsync(
           Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY
         );
-        setRecording(recocnding);
+        setRecording(recording);
       }else{
         setMassage('Please grant permission to app to access microphone')
       }
     }catch(err){
-      console.log('Failed to start recording', err)
+      console.log('Failed to start recording', err);
     }
   }
   async function stopRecording(){
     // When stop recording set the recoding to udefined
     setRecording(undefined)
-    // stop and uload async
+    // stop and upload async
     await recording.stopAndUnloadAsync();
     // and get the existing recordings
     let updatedRecordings=[...recordings];
@@ -50,7 +50,7 @@ export default function App() {
       // This will be usefull when a user wants to download the audio to the phone
       file: recording.getURI()
     });
-    setRecoridngs(updatedRecordings);
+    setRecordings(updatedRecordings);
 
 
   }
@@ -58,7 +58,7 @@ export default function App() {
   function getDurationFormatted(millis){
 // calculate from millsecond to minutes and seconds
 const minutes= millis/1000/60;
- const minutesDisplay = Math.floor(minutes);
+ const minutesDisplay = Math.floor(minutes);  
  const seconds = Math.round((minutes-minutesDisplay)*60);
  const secondsDisplay = seconds <10 ? `0${seconds}` :seconds;
  return `${minutesDisplay}:${secondsDisplay}`;
@@ -68,7 +68,7 @@ const minutes= millis/1000/60;
     return recordings.map((recordingLine, index)=>{
       return(
         <View key={index} style={styles.row}>
-          <Text style={styles.fill}>Recording{index +1} - {recordingLine.duration}</Text>
+          <Text style={styles.fill}>Recording{index + 1} - {recordingLine.duration}</Text>
         {/* Add the button and paly the audio when the user is willing to  */}
         <Button style={styles.button} onPress={()=> recordingLine.sound.replayAsync()}title="Play">
 
@@ -82,7 +82,7 @@ const minutes= millis/1000/60;
     {/* This must notify the user to hold a mic inorder to record */}
     <Text>{message}</Text>
     {/* Button to control whether i am recording or not  e.g allow the user to start recording or stop recording*/}
-    <Button title={recording? 'Stop Recording' :'Start Recording' }
+    <Button title={recording ? 'Stop Recording' :'Start Recording' }
     
     // this two functions will control whether the user have start recocnding or stopped recording
     onPress={recording ? stopRecording : startRecording}
